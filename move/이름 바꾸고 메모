@@ -1,0 +1,48 @@
+import os
+import shutil
+
+def copy_with_prefix_and_log(base_input_path, output_base_path, extension, prefix):
+    if not os.path.exists(base_input_path):
+        print(f"[오류] 입력 폴더가 존재하지 않습니다: {base_input_path}")
+        return
+
+    os.makedirs(output_base_path, exist_ok=True)
+    log_file_path = os.path.join(output_base_path, "복사결과.txt")
+    log_entries = []
+
+    for subdir in sorted(os.listdir(base_input_path)):
+        subdir_path = os.path.join(base_input_path, subdir)
+
+        if os.path.isdir(subdir_path):
+            output_subdir = os.path.join(output_base_path, subdir)
+            os.makedirs(output_subdir, exist_ok=True)
+
+            for root, _, files in os.walk(subdir_path):
+                for file in files:
+                    if file.lower().endswith(extension.lower()):
+                        src_file = os.path.join(root, file)
+
+                        # 새 파일명 = prefix_원래이름
+                        new_filename = f"{prefix}_{file}"
+                        dst_file = os.path.join(output_subdir, new_filename)
+
+                        shutil.copy2(src_file, dst_file)
+
+                        # 로그 저장
+                        log_entries.append(f"{src_file} → {dst_file}")
+
+            print(f"[✓] {subdir} 폴더 처리 완료")
+
+    with open(log_file_path, "w", encoding="utf-8") as log_file:
+        for line in log_entries:
+            log_file.write(line + "\n")
+
+    print(f"[완료] 전체 복사 완료. 로그: {log_file_path}")
+
+if __name__ == "__main__":
+    base_input = input("상위 입력 폴더 경로를 입력하세요 (예: A): ").strip()
+    output_base = input("출력할 기본 경로를 입력하세요: ").strip()
+    ext = input("복사할 확장자를 입력하세요 (예: .nii.gz, .dcm): ").strip()
+    prefix = input("출력 파일 앞에 붙일 접두어(T): ").strip()
+
+    copy_with_prefix_and_log(base_input, output_base, ext, prefix)
