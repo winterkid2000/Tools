@@ -1,0 +1,26 @@
+import os
+import shutil
+
+def copy_folder_contents(src_folder, dst_folder):
+    if not os.path.exists(src_folder):
+        print(f"[오류] 입력 경로가 존재하지 않습니다: {src_folder}")
+        return
+
+    os.makedirs(dst_folder, exist_ok=True)
+
+    for item in os.listdir(src_folder):
+        src_path = os.path.join(src_folder, item)
+        dst_path = os.path.join(dst_folder, item)
+
+        if os.path.isdir(src_path):
+            shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+        else:
+            shutil.copy2(src_path, dst_path)
+
+    print(f"[완료] {src_folder} → {dst_folder} 복사 완료")
+
+if __name__ == "__main__":
+    src = input("복사할 폴더 경로를 입력하세요: ").strip()
+    dst = input("복사할 대상 폴더 경로를 입력하세요: ").strip()
+
+    copy_folder_contents(src, dst)
