@@ -1,0 +1,28 @@
+import os
+import shutil
+
+def copy_selected_extension(src_folder, dst_folder, extension):
+    if not os.path.exists(src_folder):
+        print(f"[오류] 입력 경로가 존재하지 않습니다: {src_folder}")
+        return
+
+    os.makedirs(dst_folder, exist_ok=True)
+
+    for root, dirs, files in os.walk(src_folder):
+        for file in files:
+            if file.lower().endswith(extension.lower()):
+                src_path = os.path.join(root, file)
+                relative_path = os.path.relpath(src_path, src_folder)
+                dst_path = os.path.join(dst_folder, relative_path)
+
+                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+                shutil.copy2(src_path, dst_path)
+
+    print(f"[완료] 확장자 '{extension}' 파일 복사 완료")
+
+if __name__ == "__main__":
+    src = input("복사할 폴더 경로를 입력하세요: ").strip()
+    dst = input("복사할 대상 폴더 경로를 입력하세요: ").strip()
+    ext = input("복사할 파일의 확장자를 입력하세요 (예: .txt, .nii.gz): ").strip()
+
+    copy_selected_extension(src, dst, ext)
