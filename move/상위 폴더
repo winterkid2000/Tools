@@ -1,0 +1,35 @@
+import os
+import shutil
+
+def copy_from_numbered_folders(base_input_path, output_base_path, extension):
+    if not os.path.exists(base_input_path):
+        print(f"[오류] 입력 폴더가 존재하지 않습니다: {base_input_path}")
+        return
+
+    for subdir in sorted(os.listdir(base_input_path)):
+        subdir_path = os.path.join(base_input_path, subdir)
+
+        if os.path.isdir(subdir_path):
+            # 출력 폴더 설정: output_base_path/1/, output_base_path/2/ ...
+            output_subdir = os.path.join(output_base_path, subdir)
+            os.makedirs(output_subdir, exist_ok=True)
+
+            for root, _, files in os.walk(subdir_path):
+                for file in files:
+                    if file.lower().endswith(extension.lower()):
+                        src_file = os.path.join(root, file)
+                        dst_file = os.path.join(output_subdir, os.path.relpath(src_file, subdir_path))
+
+                        os.makedirs(os.path.dirname(dst_file), exist_ok=True)
+                        shutil.copy2(src_file, dst_file)
+
+            print(f"{subdir} 폴더 처리 완료")
+
+    print("[완료] 모든 번호 폴더에 대해 파일 복사 완료")
+
+if __name__ == "__main__":
+    base_input = input("상위 입력 폴더 경로를 입력하세요 (예: A): ").strip()
+    output_base = input("출력할 기본 경로를 입력하세요: ").strip()
+    ext = input("복사할 확장자를 입력하세요 (예: .nii.gz, .dcm): ").strip()
+
+    copy_from_numbered_folders(base_input, output_base, ext)
