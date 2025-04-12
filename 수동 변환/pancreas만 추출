@@ -11,7 +11,7 @@ def run_segmentation_on_folder(input_folder, output_base):
         output_path = os.path.join(output_base, patient_name)
         os.makedirs(output_path, exist_ok=True)
 
-        print(f"[→] {patient_name} 처리 중...")
+        print(f"{patient_name} 처리 중...")
 
         command = [
             "TotalSegmentator",
@@ -28,12 +28,12 @@ def run_segmentation_on_folder(input_folder, output_base):
             new_pancreas = os.path.join(output_path, f"{patient_name}_pancreas.nii.gz")
             if os.path.exists(old_pancreas):
                 os.rename(old_pancreas, new_pancreas)
-                print(f"[✓] {patient_name} → {new_pancreas}")
+                print(f"{patient_name} → {new_pancreas}")
             else:
-                print(f"[!] {patient_name} 결과 없음 (pancreas.nii.gz 없음)")
+                print(f"{patient_name} 결과 없음 (pancreas.nii.gz 없음)")
 
         except subprocess.CalledProcessError as e:
-            print(f"[X] {patient_name} 실패: {e}")
+            print(f"{patient_name} 실패: {e}")
 
 if __name__ == "__main__":
     input_folder = r"폴더 이름 입력"
