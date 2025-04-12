@@ -1,0 +1,51 @@
+import os
+import shutil
+
+def copy_deep_nested_files(base_input_path, output_base_path, extension, prefix=""):
+    if not os.path.exists(base_input_path):
+        print(f"[오류] 입력 폴더가 존재하지 않습니다: {base_input_path}")
+        return
+
+    log_entries = []
+
+    for patient_folder in sorted(os.listdir(base_input_path)):
+        patient_path = os.path.join(base_input_path, patient_folder)
+        if not os.path.isdir(patient_path):
+            continue
+
+        for root, _, files in os.walk(patient_path):
+            for file in files:
+                if file.lower().endswith(extension.lower()):
+                    src_file = os.path.join(root, file)
+
+                    # patient_path 기준 상대 경로 (하위 구조 보존)
+                    rel_path = os.path.relpath(src_file, base_input_path)
+                    rel_dir = os.path.dirname(rel_path)
+
+                    # 접두어 붙이기
+                    new_filename = f"{prefix}_{file}" if prefix else file
+
+                    dst_dir = os.path.join(output_base_path, rel_dir)
+                    os.makedirs(dst_dir, exist_ok=True)
+                    dst_file = os.path.join(dst_dir, new_filename)
+
+                    shutil.copy2(src_file, dst_file)
+                    log_entries.append(f"{src_file} → {dst_file}")
+
+        print(f"{patient_folder} 폴더 처리 완료")
+
+    # 로그 저장
+    log_path = os.path.join(output_base_path, "복사결과.txt")
+    with open(log_path, "w", encoding="utf-8") as f:
+        for line in log_entries:
+            f.write(line + "\n")
+
+    print(f"[완료] 전체 복사 완료. 로그 저장됨: {log_path}")
+
+if __name__ == "__main__":
+    base_input = input("상위 입력 폴더 경로를 입력하세요 (예: A): ").strip()
+    output_base = input("출력할 기본 경로를 입력하세요: ").strip()
+    ext = input("복사할 확장자를 입력하세요 (예: .nii.gz, .dcm): ").strip()
+    prefix = input("출력 파일 앞에 붙일 접두어(T): ").strip()
+
+    copy_deep_nested_files(base_input, output_base, ext, prefix)
