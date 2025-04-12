@@ -1,0 +1,45 @@
+import os
+import nibabel as nib
+import numpy as np
+from skimage import measure
+from stl import mesh  # pip install numpy-stl
+
+def nifti_to_stl(nifti_path, stl_path, threshold=0.5):
+    try:
+        img = nib.load(nifti_path)
+        data = img.get_fdata()
+        binary_mask = data > threshold
+
+        if not np.any(binary_mask):
+            print(f"[!] 마스크 비어있음 → {nifti_path}")
+            return
+
+        verts, faces, _, _ = measure.marching_cubes(binary_mask, level=0)
+
+        stl_mesh = mesh.Mesh(np.zeros(faces.shape[0], dtype=mesh.Mesh.dtype))
+        for i, f in enumerate(faces):
+            for j in range(3):
+                stl_mesh.vectors[i][j] = verts[f[j], :]
+
+        stl_mesh.save(stl_path)
+        print(f"STL 저장 완료: {stl_path}")
+    except Exception as e:
+        print(f"변환 실패 ({nifti_path}): {e}")
+
+def convert_all_segmentations(base_folder):
+    for folder in os.listdir(base_folder):
+        subfolder_path = os.path.join(base_folder, folder)
+        if not os.path.isdir(subfolder_path):
+            continue
+
+        for file in os.listdir(subfolder_path):
+            if file.endswith("_pancreas.nii.gz"):
+                nii_path = os.path.join(subfolder_path, file)
+                stl_name = file.replace(".nii.gz", ".stl")
+                stl_path = os.path.join(subfolder_path, stl_name)
+
+                nifti_to_stl(nii_path, stl_path)
+
+if __name__ == "__main__":
+    segment_folder = r"폴더 경로 입력"
+    convert_all_segmentations(segment_folder)
