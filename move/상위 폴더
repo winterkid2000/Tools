@@ -33,3 +33,6 @@ if __name__ == "__main__":
     ext = input("복사할 확장자를 입력하세요 (예: .nii.gz, .dcm): ").strip()
 
     copy_from_numbered_folders(base_input, output_base, ext)
+
+
+#상위 폴더가 A고, 그 밑에 1, 2... 이렇게 순환할 때 그 안에 있는 확장자명 파일을 가져옴 
