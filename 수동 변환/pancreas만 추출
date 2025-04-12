@@ -1,0 +1,43 @@
+import os
+import subprocess
+import shutil
+
+def run_segmentation_on_folder(input_folder, output_base):
+    files = [f for f in os.listdir(input_folder) if f.endswith(".nii.gz")]
+    
+    for filename in files:
+        input_path = os.path.join(input_folder, filename)
+        patient_name = filename.replace(".nii.gz", "")
+        output_path = os.path.join(output_base, patient_name)
+        os.makedirs(output_path, exist_ok=True)
+
+        print(f"[→] {patient_name} 처리 중...")
+
+        command = [
+            "TotalSegmentator",
+            "-i", input_path,
+            "-o", output_path,
+            "--roi_subset", "pancreas",
+            "--output_type", "nifti"
+        ]
+        try:
+            subprocess.run(command, check=True)
+            
+            # 파일명 변경: pancreas.nii.gz → 환자명_pancreas.nii.gz
+            old_pancreas = os.path.join(output_path, "pancreas.nii.gz")
+            new_pancreas = os.path.join(output_path, f"{patient_name}_pancreas.nii.gz")
+            if os.path.exists(old_pancreas):
+                os.rename(old_pancreas, new_pancreas)
+                print(f"[✓] {patient_name} → {new_pancreas}")
+            else:
+                print(f"[!] {patient_name} 결과 없음 (pancreas.nii.gz 없음)")
+
+        except subprocess.CalledProcessError as e:
+            print(f"[X] {patient_name} 실패: {e}")
+
+if __name__ == "__main__":
+    input_folder = r"폴더 이름 입력"
+    output_folder = os.path.join(input_folder, "segmentations")
+    os.makedirs(output_folder, exist_ok=True)
+
+    run_segmentation_on_folder(input_folder, output_folder)
