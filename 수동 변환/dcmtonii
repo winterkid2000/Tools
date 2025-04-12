@@ -1,0 +1,10 @@
+import os
+import dicom2nifti
+import dicom2nifti.settings
+
+dicom2nifti.settings.disable_validate_slice_increment()
+
+dicom2nifti.convert_dicom(
+    r"\\192.168.152.188\data\Workspace\치료계획실\research\Pancreas\Pancreas_CT_normal\7\POST",
+    r"C:\Users\MIM\Desktop\myfile\converted_output\7_POST.nii.gz"
+)
