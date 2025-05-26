@@ -4,6 +4,7 @@ import dicom2nifti
 import dicom2nifti.settings
 import dicom2nifti.convert_dicom as d2n_dicom
 import pydicom
+import nibabel as nib
 
 def extract_patient_id(path: str) -> str:
     match = re.findall(r"\d+", path)
@@ -33,8 +34,10 @@ def convert_dicom_folder(dicom_folder: str, output_base: str, phase: str):
         print(f"다이콤이 없어용: {dicom_folder}")
         return
     try:
-        d2n_dicom.dicom_array_to_nifti(dcm_files, output_nii_path, reorient_nifti=True)
-        print(f"변신!: {output_nii_path}")
+       nifti_image = d2n_dicom.dicom_array_to_nifti(dcm_files, None, reorient_nifti=True)
+       output_nii_path = output_nii_path.replace(".nii.gz", ".nii")  
+       nib.save(nifti_image, output_nii_path)
+       print(f"변신 완료 (.nii): {output_nii_path}")
     except Exception as e:
         print(f"변신하다가 공격 받았음: {dicom_folder} - {e}")
 
